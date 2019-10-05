@@ -20,11 +20,12 @@
 import re
 import pickle
 import requests
-from xbmcswift2 import xbmc
-from BeautifulSoup import SoupStrainer, BeautifulSoup
+import xbmc
+from bs4 import BeautifulSoup, SoupStrainer
 import config
 
 URLASI = 'http://www.arretsurimages.net'
+APIURL = 'https://api.arretsurimages.net'
 
 
 def log(msg, level=xbmc.LOGNOTICE):
@@ -73,17 +74,17 @@ def get_soup(url):
 def is_logged_in(username):
     """Return True if @username is already logged in,
     False otherwise"""
-    url_moncompte = 'http://www.arretsurimages.net/forum/control.php?panel=summary'
-    soup = get_soup(url_moncompte)
-    if soup.title.string == u'Arrêt sur images – Mon compte':
-        # Already logged in, check that the username is still the same
-        user_text = soup.find(text=re.compile(u'L’e-mail que vous utilisez pour @si est.*'))
-        if user_text and user_text.next.string == username:
-            debug('User already logged in')
-            return True
-        else:
-            debug('Already logged in, but username does not match...')
-    debug('User not logged in')
+    # url_moncompte = 'http://www.arretsurimages.net/forum/control.php?panel=summary'
+    # soup = get_soup(url_moncompte)
+    # if soup.title.string == u'Arrêt sur images – Mon compte':
+    #     # Already logged in, check that the username is still the same
+    #     user_text = soup.find(text=re.compile(u'L’e-mail que vous utilisez pour @si est.*'))
+    #     if user_text and user_text.next.string == username:
+    #         debug('User already logged in')
+    #         return True
+    #     else:
+    #         debug('Already logged in, but username does not match...')
+    # debug('User not logged in')
     return False
 
 
@@ -91,21 +92,23 @@ def login(username=None, password=None):
     """Try to login using @username and @password.
     Return True if successful, False otherwise"""
     if username and password:
-        payload = {'forum_id': 0,
-                   'redir': 'http://www.arretsurimages.net/forum/list.php',
+        payload = {'client_id': '1_1e3dazertyukilygfos7ldzertyuof7pfd',
+                   'client_secret': '2r8yd4a8un0fn45d93acfr3efrgthzdheifhrehihidg4dk5kds7ds23',
+                   'grant_type': 'password',
                    'username': username,
                    'password': password}
-        url_login = 'http://www.arretsurimages.net/forum/login.php'
-        r = requests.post(url_login, data=payload)
-        soup = BeautifulSoup(r.text, convertEntities=BeautifulSoup.HTML_ENTITIES)
-        if soup.title.string == u'Le Forum Arrêt Sur Images':
+        url_login = APIURL + '/oauth/v2/token'
+        response = requests.post(url_login, data=payload)
+        if response:
             debug('User login successful')
-            # We are on the forum page - login successful
             # Save the cookie
             with open(config.cookie_file, 'wb') as f:
-                pickle.dump(r.cookies, f, 2)
+                pickle.dump(response.cookies, f, 2)
                 debug('cookie saved')
             return True
+        else:
+            debug('ERROR:' + str(response.status_code) + ' while Auth - handle that')
+            debug(response.content)
     return False
 
 
