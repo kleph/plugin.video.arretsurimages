@@ -20,7 +20,9 @@
 import re
 import pickle
 import requests
-import xbmc
+import json
+# import xbmc
+from xbmcswift2 import xbmc
 from bs4 import BeautifulSoup, SoupStrainer
 import config
 
@@ -43,8 +45,10 @@ def error(msg):
 def get_html(url):
     """Return the content of the HTTP GET request in unicode"""
     # Try to load the cookie
+    debug('Trying to load cookie ' + config.cookie_file)
     try:
         with open(config.cookie_file, 'rb') as f:
+            print(f.read())
             cookies = pickle.load(f)
     except:
         cookies = {}
@@ -101,10 +105,18 @@ def login(username=None, password=None):
         response = requests.post(url_login, data=payload)
         if response:
             debug('User login successful')
+
+            # convert OAuth json response to cookie
+            oauth_response = json.loads(response.content)
+            # TODO: bad printing
+            debug(str(oauth_response))
+            # insert auth_ in the name of all keys to construct cookie
+            cookie = {'auth_' + k: v for (k, v) in oauth_response.items()}
+
             # Save the cookie
             with open(config.cookie_file, 'wb') as f:
-                pickle.dump(response.cookies, f, 2)
-                debug('cookie saved')
+                pickle.dump(cookie, f, 2)
+                debug('cookie saved as: ' + config.cookie_file)
             return True
         else:
             debug('ERROR:' + str(response.status_code) + ' while Auth - handle that')

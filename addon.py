@@ -39,7 +39,6 @@ SORTMETHOD = ['date_publication', 'nb_vues', 'nb_comments']
 BESTOF_SORTMETHOD = ['recent', 'visited', 'commented', 'rated']
 STREAMS = ['stream_h264_hq_url', 'stream_h264_url']
 
-
 def login():
     """Login or exit if it fails"""
     # Only available with a subscription
