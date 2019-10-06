@@ -137,9 +137,6 @@ class Programs:
     from an url"""
 
     def __init__(self, url):
-        # Load the current page
-        # self.html = get_html(url)
-
         # make API call
         url_emissions = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
                         'aggregates][content_format_id][2]=1&aggregates[0][limit]=10'
@@ -185,29 +182,6 @@ def get_main_video(url):
         debug("video_url: " + video_url)
     title = video_url.split('/')[-1]
     return {'title': title, 'url': video_url}
-
-    # # Look for the "bouton-telecharger" class (new version)
-    # telecharger = soup.find('a', attrs={'class': 'bouton-telecharger'})
-    # if telecharger:
-    #     download_page = telecharger['href']
-    # else:
-    #     # Look for the "bouton-telecharger" image (old version)
-    #     img = soup.find('img', attrs={'src': 'http://www.arretsurimages.net/images/boutons/bouton-telecharger.png'})
-    #     if img:
-    #         download_page = img.findParent()['href']
-    # if download_page.endswith(('.avi', '.mp4')):
-    #     title = download_page.split('/')[-1]
-    #     soup = get_soup(download_page)
-    #     click = soup.find(text=re.compile('cliquer ici'))
-    #     if click:
-    #         link = click.findParent()['href']
-    #         debug('Main video link found: %s' % link)
-    #     else:
-    #         debug('No \"cliquer ici\" found. Trying link with "fichiers"...')
-    #         link = download_page.replace('telecharger', 'fichiers')
-    # else:
-    #     debug('No main video found')
-    # return {'title': title, 'url': link}
 
 
 def get_program_parts(url, name, icon):

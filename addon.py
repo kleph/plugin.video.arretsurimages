@@ -209,18 +209,6 @@ def get_program(url, mode):
     debug('playing: ' + video_url)
 
     return play_video(video_url)
-    # video = scraper.get_main_video(url)
-    # if video['url'] is None:
-    #     # No main video was found
-    #     # Ask user to enable the DisplayParts setting
-    #     xbmcgui.Dialog().ok(plugin.get_string(30054),
-    #                         plugin.get_string(30055),
-    #                         plugin.get_string(30052))
-    #     sys.exit(0)
-    # if mode == 'play':
-    #     return play_video(video['url'])
-    # elif mode == 'download':
-    #     download_video(video['url'], video['title'])
 
 
 @plugin.route('/play/<url>')
