@@ -83,23 +83,6 @@ def get_soup(url):
     return BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES)
 
 
-def is_logged_in(username):
-    """Return True if @username is already logged in,
-    False otherwise"""
-    # url_moncompte = 'http://www.arretsurimages.net/forum/control.php?panel=summary'
-    # soup = get_soup(url_moncompte)
-    # if soup.title.string == u'Arrêt sur images – Mon compte':
-    #     # Already logged in, check that the username is still the same
-    #     user_text = soup.find(text=re.compile(u'L’e-mail que vous utilisez pour @si est.*'))
-    #     if user_text and user_text.next.string == username:
-    #         debug('User already logged in')
-    #         return True
-    #     else:
-    #         debug('Already logged in, but username does not match...')
-    # debug('User not logged in')
-    return False
-
-
 def login(username=None, password=None):
     """Try to login using @username and @password.
     Return True if successful, False otherwise"""

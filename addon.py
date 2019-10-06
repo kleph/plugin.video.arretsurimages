@@ -51,11 +51,9 @@ def login():
     if not username or not password:
         xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30051), plugin.get_string(30052))
         sys.exit(0)
-    # Try to login only if username isn't already logged in
-    # (we don't have to login everytime as we use a cookie)
-    if not scraper.is_logged_in(username) and not scraper.login(username, password):
-        xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30053))
-        sys.exit(0)
+    scraper.login(username, password)
+    xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30053))
+    sys.exit(0)
 
 def log(msg, level=xbmc.LOGNOTICE):
     xbmc.log('ASI scraper: %s' % msg.encode('utf-8'), level)
