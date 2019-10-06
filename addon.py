@@ -39,7 +39,6 @@ URL = {'fiveLast': 'http://www.arretsurimages.net/emissions.php?',
        'CPQJ': URLEMISSION % 7,
       }
 SORTMETHOD = ['date_publication', 'nb_vues', 'nb_comments']
-BESTOF_SORTMETHOD = ['recent', 'visited', 'commented', 'rated']
 STREAMS = ['stream_h264_hq_url', 'stream_h264_url']
 
 def login():
@@ -73,7 +72,6 @@ def index():
         return show_programs('fiveLast', '1')
     items = [
         {'label': plugin.get_string(30010), 'path': plugin.url_for('emissions')},
-        {'label': plugin.get_string(30011), 'path': plugin.url_for('bestof', page='1')},
         {'label': plugin.get_string(30012), 'path': plugin.url_for('settings')},
     ]
     return plugin.finish(items)
@@ -117,32 +115,6 @@ def emissions():
         }
     ]
     return plugin.finish(items)
-
-
-@plugin.route('/bestof/<page>')
-def bestof(page):
-    """Display ASI BestOf videos"""
-    # No subscription required
-    sort_method = BESTOF_SORTMETHOD[plugin.get_setting('bestOfSortMethod', int)]
-    result = scraper.get_bestof_videos(page, sort_method)
-    items = [{'label': video['title'],
-              'path': plugin.url_for('play_video_id', video_id=video['id']),
-              'thumbnail': video['thumbnail_url'],
-              'is_playable': True,
-             } for video in result['list']]
-    # Add navigation items (Previous / Next) if needed
-    page = int(page)
-    if result['has_more']:
-        next_page = str(page + 1)
-        items.insert(0, {'label': plugin.get_string(30020),
-                         'path': plugin.url_for('bestof',
-                                               page=next_page)})
-    if page > 1:
-        previous_page = str(page - 1)
-        items.insert(0, {'label': plugin.get_string(30021),
-                         'path': plugin.url_for('bestof',
-                                               page=previous_page)})
-    return plugin.finish(items, update_listing=(page != 1))
 
 
 @plugin.route('/settings/')

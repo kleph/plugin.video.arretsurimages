@@ -241,12 +241,3 @@ def get_video_by_id(video_id, streams):
     title = result["title"] + '.mp4'
     return {'title': title, 'url': link}
 
-
-def get_bestof_videos(page, sort_method):
-    """Use dailymotion API to get ASI videos
-
-    Return a dictionary with the videos in the 'list' item
-    The 'has_more' key can be used to know if there are more pages
-    """
-    bestof_videos = 'https://api.dailymotion.com/user/asi/videos?fields=id,title,thumbnail_url&page=%s&sort=%s'
-    return get_json(bestof_videos % (page, sort_method))
