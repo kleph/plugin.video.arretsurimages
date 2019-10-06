@@ -26,8 +26,8 @@ from xbmcswift2 import xbmc
 from bs4 import BeautifulSoup, SoupStrainer
 import config
 
-URLASI = 'http://www.arretsurimages.net'
-APIURL = 'https://api.arretsurimages.net'
+URLASI = 'https://www.arretsurimages.net'
+URLAPI = 'https://api.arretsurimages.net'
 
 
 def log(msg, level=xbmc.LOGNOTICE):
@@ -62,9 +62,17 @@ def get_html(url):
 
 def get_json(url):
     """Return the json-encode content of the HTTP GET request"""
+    # Try to load the cookie
+    debug('Trying to load cookie ' + config.cookie_file)
+    try:
+        with open(config.cookie_file, 'rb') as f:
+            print(f.read())
+            cookies = pickle.load(f)
+    except:
+        cookies = {}
     try:
         debug('JSON request: %s' % url)
-        r = requests.get(url)
+        r = requests.get(url, cookies=cookies)
         return r.json()
     except (requests.ConnectionError, requests.HTTPError):
         error('JSON request failed' % url)
@@ -101,7 +109,7 @@ def login(username=None, password=None):
                    'grant_type': 'password',
                    'username': username,
                    'password': password}
-        url_login = APIURL + '/oauth/v2/token'
+        url_login = URLAPI + '/oauth/v2/token'
         response = requests.post(url_login, data=payload)
         if response:
             debug('User login successful')
@@ -130,26 +138,19 @@ class Programs:
 
     def __init__(self, url):
         # Load the current page
-        self.html = get_html(url)
+        # self.html = get_html(url)
+
+        # make API call
+        url_emissions = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
+                        'aggregates][content_format_id][2]=1&aggregates[0][limit]=5'
+        self.json = get_json(url_emissions)
 
     def get_programs(self):
         """Return all programs from the current page"""
-        # Remove the double double quotes in title
-        # (otherwise beautifulsoup just get an empty string)
-        html = re.sub('title=""(.+)">', 'title="\\1>', self.html)
-        # Couldn't parse properly the file using "'div', {'class':'bloc-contenu-8'}"
-        # BeautifulSoup returns nothing in that class
-        # So use 'contenu-descr-8 ' and find previous tag
-        soup = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES)
-        for media in soup.findAll('div', {'class': 'contenu-descr-8 '}):
-            tag = media.findPrevious('a')
-            # Get link, title and thumb
-            if tag['href'].startswith('http'):
-                media_link = tag['href']
-            else:
-                media_link = URLASI + tag['href']
-            media_title = tag['title'].encode('utf-8')
-            media_thumb = URLASI + tag.find('img', attrs={'src': re.compile('.+?\.[png|jpg]')})['src']
+        for media in self.json[0]:
+            media_title = media['title']
+            media_link = URLASI + '/' + media['path']
+            media_thumb = ''
             yield {'url': media_link, 'title': media_title, 'thumb': media_thumb}
 
     def get_nav_items(self):

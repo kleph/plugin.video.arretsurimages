@@ -25,6 +25,10 @@ from SimpleDownloader import SimpleDownloader
 import resources.lib.scraper as scraper
 from config import plugin
 
+URLAPI = 'https://api.arretsurimages.net'
+url = URL_API + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
+                'aggregates][content_format_id][2]=1&aggregates[0][limit]=5'
+
 URLEMISSION = 'http://www.arretsurimages.net/toutes-les-emissions.php?id=%d&'
 URL = {'fiveLast': 'http://www.arretsurimages.net/emissions.php?',
        'arretSurImages': URLEMISSION % 1,
@@ -171,21 +175,21 @@ def show_programs(label, page):
                                         plugin.url_for('download_program',
                                                         url=program['url']))],
                  } for program in entries]
-    # Add navigation items (Previous / Next) if needed
-    nav_items = programs.get_nav_items()
-    page = int(page)
-    if nav_items['next']:
-        next_page = str(page + 1)
-        items.insert(0, {'label': plugin.get_string(30020),
-                         'path': plugin.url_for('show_programs',
-                                               label=label,
-                                               page=next_page)})
-    if nav_items['previous']:
-        previous_page = str(page - 1)
-        items.insert(0, {'label': plugin.get_string(30021),
-                         'path': plugin.url_for('show_programs',
-                                               label=label,
-                                               page=previous_page)})
+    # # Add navigation items (Previous / Next) if needed
+    # nav_items = programs.get_nav_items()
+    # page = int(page)
+    # if nav_items['next']:
+    #     next_page = str(page + 1)
+    #     items.insert(0, {'label': plugin.get_string(30020),
+    #                      'path': plugin.url_for('show_programs',
+    #                                            label=label,
+    #                                            page=next_page)})
+    # if nav_items['previous']:
+    #     previous_page = str(page - 1)
+    #     items.insert(0, {'label': plugin.get_string(30021),
+    #                      'path': plugin.url_for('show_programs',
+    #                                            label=label,
+    #                                            page=previous_page)})
     return plugin.finish(items, update_listing=(page != 1))
 
 
