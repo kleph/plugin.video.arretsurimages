@@ -19,15 +19,14 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 import sys
-from xbmcswift2 import xbmcgui
+from xbmcswift2 import xbmcgui, xbmc
 from collections import deque
 from SimpleDownloader import SimpleDownloader
 import resources.lib.scraper as scraper
 from config import plugin
 
 URLAPI = 'https://api.arretsurimages.net'
-url = URL_API + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
-                'aggregates][content_format_id][2]=1&aggregates[0][limit]=5'
+URLPLAY = 'http://v42.arretsurimages.net'
 
 URLEMISSION = 'http://www.arretsurimages.net/toutes-les-emissions.php?id=%d&'
 URL = {'fiveLast': 'http://www.arretsurimages.net/emissions.php?',
@@ -57,6 +56,13 @@ def login():
     if not scraper.is_logged_in(username) and not scraper.login(username, password):
         xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30053))
         sys.exit(0)
+
+def log(msg, level=xbmc.LOGNOTICE):
+    xbmc.log('ASI scraper: %s' % msg.encode('utf-8'), level)
+
+
+def debug(msg):
+    log(msg, xbmc.LOGDEBUG)
 
 
 @plugin.route('/')
@@ -175,6 +181,7 @@ def show_programs(label, page):
                                         plugin.url_for('download_program',
                                                         url=program['url']))],
                  } for program in entries]
+
     # # Add navigation items (Previous / Next) if needed
     # nav_items = programs.get_nav_items()
     # page = int(page)
@@ -197,18 +204,23 @@ def show_programs(label, page):
 @plugin.route('/download_program/<url>', name='download_program', options={'mode': 'download'})
 def get_program(url, mode):
     """Play or download the selected program"""
-    video = scraper.get_main_video(url)
-    if video['url'] is None:
-        # No main video was found
-        # Ask user to enable the DisplayParts setting
-        xbmcgui.Dialog().ok(plugin.get_string(30054),
-                            plugin.get_string(30055),
-                            plugin.get_string(30052))
-        sys.exit(0)
-    if mode == 'play':
-        return play_video(video['url'])
-    elif mode == 'download':
-        download_video(video['url'], video['title'])
+    debug('get_program: ' + url)
+    video_url = URLPLAY + '/fichiers/' + url
+    debug('playing: ' + video_url)
+
+    return play_video(video_url)
+    # video = scraper.get_main_video(url)
+    # if video['url'] is None:
+    #     # No main video was found
+    #     # Ask user to enable the DisplayParts setting
+    #     xbmcgui.Dialog().ok(plugin.get_string(30054),
+    #                         plugin.get_string(30055),
+    #                         plugin.get_string(30052))
+    #     sys.exit(0)
+    # if mode == 'play':
+    #     return play_video(video['url'])
+    # elif mode == 'download':
+    #     download_video(video['url'], video['title'])
 
 
 @plugin.route('/play/<url>')

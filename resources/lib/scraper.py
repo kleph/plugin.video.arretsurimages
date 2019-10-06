@@ -21,13 +21,13 @@ import re
 import pickle
 import requests
 import json
-# import xbmc
 from xbmcswift2 import xbmc
-from bs4 import BeautifulSoup, SoupStrainer
+from BeautifulSoup import BeautifulSoup, SoupStrainer
 import config
 
 URLASI = 'https://www.arretsurimages.net'
 URLAPI = 'https://api.arretsurimages.net'
+URLPLAY = 'http://v42.arretsurimages.net'
 
 
 def log(msg, level=xbmc.LOGNOTICE):
@@ -44,17 +44,17 @@ def error(msg):
 
 def get_html(url):
     """Return the content of the HTTP GET request in unicode"""
-    # Try to load the cookie
     debug('Trying to load cookie ' + config.cookie_file)
     try:
         with open(config.cookie_file, 'rb') as f:
-            print(f.read())
             cookies = pickle.load(f)
     except:
+        error("Failed at loading cookie: " + config.cookie_file)
         cookies = {}
     try:
         debug('HTTP request: %s' % url)
-        r = requests.get(url, cookies=cookies)
+        access_token = cookies['auth_access_token']
+        r = requests.get(url, params={'access_token': access_token})
         return r.text
     except (requests.ConnectionError, requests.HTTPError):
         error('HTTP request failed' % url)
@@ -62,17 +62,17 @@ def get_html(url):
 
 def get_json(url):
     """Return the json-encode content of the HTTP GET request"""
-    # Try to load the cookie
     debug('Trying to load cookie ' + config.cookie_file)
     try:
         with open(config.cookie_file, 'rb') as f:
-            print(f.read())
             cookies = pickle.load(f)
     except:
+        error("Failed at loading cookie: " + config.cookie_file)
         cookies = {}
     try:
         debug('JSON request: %s' % url)
-        r = requests.get(url, cookies=cookies)
+        access_token = cookies['auth_access_token']
+        r = requests.get(url, params={'access_token': access_token})
         return r.json()
     except (requests.ConnectionError, requests.HTTPError):
         error('JSON request failed' % url)
@@ -142,14 +142,16 @@ class Programs:
 
         # make API call
         url_emissions = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
-                        'aggregates][content_format_id][2]=1&aggregates[0][limit]=5'
+                        'aggregates][content_format_id][2]=1&aggregates[0][limit]=10'
         self.json = get_json(url_emissions)
 
     def get_programs(self):
         """Return all programs from the current page"""
         for media in self.json[0]:
             media_title = media['title']
-            media_link = URLASI + '/' + media['path']
+            media_link = media['associated_video']['name']
+            media_link = media['associated_video']['name'] + '_DL.mp4'
+            # vimeo_id = media['associated_video']['reference_url'] (/ last part)
             media_thumb = ''
             yield {'url': media_link, 'title': media_title, 'thumb': media_thumb}
 
@@ -176,28 +178,36 @@ def get_main_video(url):
     link = None
     download_page = ''
     soup = get_soup(url)
-    # Look for the "bouton-telecharger" class (new version)
-    telecharger = soup.find('a', attrs={'class': 'bouton-telecharger'})
-    if telecharger:
-        download_page = telecharger['href']
-    else:
-        # Look for the "bouton-telecharger" image (old version)
-        img = soup.find('img', attrs={'src': 'http://www.arretsurimages.net/images/boutons/bouton-telecharger.png'})
-        if img:
-            download_page = img.findParent()['href']
-    if download_page.endswith(('.avi', '.mp4')):
-        title = download_page.split('/')[-1]
-        soup = get_soup(download_page)
-        click = soup.find(text=re.compile('cliquer ici'))
-        if click:
-            link = click.findParent()['href']
-            debug('Main video link found: %s' % link)
-        else:
-            debug('No \"cliquer ici\" found. Trying link with "fichiers"...')
-            link = download_page.replace('telecharger', 'fichiers')
-    else:
-        debug('No main video found')
-    return {'title': title, 'url': link}
+
+    for link in soup.find_all(href=re.compile("\.mp4$")):
+    # for link in soup.find_all('a', {"class": "action download-action unstyled-button"}):
+        video_url = link.get('href')
+        debug("video_url: " + video_url)
+    title = video_url.split('/')[-1]
+    return {'title': title, 'url': video_url}
+
+    # # Look for the "bouton-telecharger" class (new version)
+    # telecharger = soup.find('a', attrs={'class': 'bouton-telecharger'})
+    # if telecharger:
+    #     download_page = telecharger['href']
+    # else:
+    #     # Look for the "bouton-telecharger" image (old version)
+    #     img = soup.find('img', attrs={'src': 'http://www.arretsurimages.net/images/boutons/bouton-telecharger.png'})
+    #     if img:
+    #         download_page = img.findParent()['href']
+    # if download_page.endswith(('.avi', '.mp4')):
+    #     title = download_page.split('/')[-1]
+    #     soup = get_soup(download_page)
+    #     click = soup.find(text=re.compile('cliquer ici'))
+    #     if click:
+    #         link = click.findParent()['href']
+    #         debug('Main video link found: %s' % link)
+    #     else:
+    #         debug('No \"cliquer ici\" found. Trying link with "fichiers"...')
+    #         link = download_page.replace('telecharger', 'fichiers')
+    # else:
+    #     debug('No main video found')
+    # return {'title': title, 'url': link}
 
 
 def get_program_parts(url, name, icon):
