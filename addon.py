@@ -88,13 +88,33 @@ def index():
         return show_programs('fiveLast', '1')
     items = [
         {'label': plugin.get_string(30010), 'path': plugin.url_for('emissions')},
+        {'label': plugin.get_string(30010), 'path': plugin.url_for('grenier')},
         {'label': plugin.get_string(30012), 'path': plugin.url_for('settings')},
     ]
     return plugin.finish(items)
 
-
 @plugin.route('/emissions/')
 def emissions():
+    login()
+    items = [
+        {'label': plugin.get_string(30010),
+         'path': plugin.url_for('show_programs', label='arretSurImages', page='1'),
+         },
+        {'label': plugin.get_string(30014),
+         'path': plugin.url_for('show_programs', label='postPop', page='1'),
+         },
+        {'label': plugin.get_string(30015),
+         'path': plugin.url_for('show_programs', label='classeTele', page='1'),
+         },
+        {'label': plugin.get_string(30016),
+         'path': plugin.url_for('show_programs', label='archiveTele', page='1'),
+         }
+    ]
+    return plugin.finish(items)
+
+
+@plugin.route('/grenier/')
+def grenier():
     """Display the available programs categories"""
     login()
     items = [

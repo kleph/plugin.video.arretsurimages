@@ -4,8 +4,12 @@
 
     <!--MainCategory-->
     <string id="30010">Emissions (abonnés)</string>
+    <string id="30011">Grenier (abonnés)</string>
     <string id="30012">Paramètres</string>
     <string id="30013">Les cinq dernières émissions</string>
+    <string id="30014">Post-Pop</string>
+    <string id="30015">Classe Télé</string>
+    <string id="30016">Archive Télé</string>
 
     <!--NavItems-->
     <string id="30020"> Suivant</string>

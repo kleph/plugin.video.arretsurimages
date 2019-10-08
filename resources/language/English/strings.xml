@@ -4,8 +4,12 @@
 
     <!--MainCategory-->
     <string id="30010">Programs (subscribers)</string>
+    <string id="30011">Attic (subscribers)</string>
     <string id="30012">Settings</string>
     <string id="30013">The five last programs</string>
+    <string id="30014">Post-Pop</string>
+    <string id="30015">Tele Class</string>
+    <string id="30016">Tele Archive</string>
 
     <!--NavItems-->
     <string id="30020"> Next</string>
