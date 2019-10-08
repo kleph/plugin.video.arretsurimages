@@ -28,7 +28,21 @@ from config import plugin
 URLAPI = 'https://api.arretsurimages.net'
 URLPLAY = 'http://v42.arretsurimages.net'
 
-URLEMISSION = 'http://www.arretsurimages.net/toutes-les-emissions.php?id=%d&'
+URLEMISSION = 'http://www.arretsurimages.net/toutes-les-emissions.php?id=%d&
+# URLAPI/api/public/contents?aggregates[content_type_slug][post-pop]=1&sort=[%22last_version_at%22,%22DESC%22]
+
+# [dans-le-text]
+# if ['associated_video']['provider'] == 'dailymotion':
+#   dailymotion_link = ['associated_video']['reference_url']
+
+# do the same with vimeo ?
+
+CONTENT_TYPE = {
+
+}
+GRENIER_TYPE = {
+}
+
 URL = {'fiveLast': 'http://www.arretsurimages.net/emissions.php?',
        'arretSurImages': URLEMISSION % 1,
        'ligneJaune': URLEMISSION % 2,
@@ -38,6 +52,8 @@ URL = {'fiveLast': 'http://www.arretsurimages.net/emissions.php?',
        '14h42': URLEMISSION % 6,
        'CPQJ': URLEMISSION % 7,
       }
+
+#TODO: implement that
 SORTMETHOD = ['date_publication', 'nb_vues', 'nb_comments']
 STREAMS = ['stream_h264_hq_url', 'stream_h264_url']
 
