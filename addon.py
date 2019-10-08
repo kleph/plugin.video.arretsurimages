@@ -28,8 +28,8 @@ from config import plugin
 URLAPI = 'https://api.arretsurimages.net'
 URLPLAY = 'http://v42.arretsurimages.net'
 
-URLEMISSION = 'http://www.arretsurimages.net/toutes-les-emissions.php?id=%d&
-# URLAPI/api/public/contents?aggregates[content_type_slug][post-pop]=1&sort=[%22last_version_at%22,%22DESC%22]
+URLEMISSION = 'http://www.arretsurimages.net/toutes-les-emissions.php?id=%d&'
+# URLAPI = /api/public/contents?aggregates[content_type_slug][post-pop]=1&sort=[%22last_version_at%22,%22DESC%22]
 
 # [dans-le-text]
 # if ['associated_video']['provider'] == 'dailymotion':
@@ -57,6 +57,7 @@ URL = {'fiveLast': 'http://www.arretsurimages.net/emissions.php?',
 SORTMETHOD = ['date_publication', 'nb_vues', 'nb_comments']
 STREAMS = ['stream_h264_hq_url', 'stream_h264_url']
 
+
 def login():
     """Login or exit if it fails"""
     # Only available with a subscription
@@ -64,11 +65,13 @@ def login():
     username = plugin.get_setting('username', unicode)
     password = plugin.get_setting('password', unicode)
     if not username or not password:
+        debug('wait what ?')
         xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30051), plugin.get_string(30052))
         sys.exit(0)
-    scraper.login(username, password)
-    xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30053))
-    sys.exit(0)
+    if not scraper.login(username, password):
+        xbmcgui.Dialog().ok(plugin.get_string(30050), plugin.get_string(30053))
+        sys.exit(0)
+
 
 def log(msg, level=xbmc.LOGNOTICE):
     xbmc.log('ASI scraper: %s' % msg.encode('utf-8'), level)
@@ -81,33 +84,29 @@ def debug(msg):
 @plugin.route('/')
 def index():
     """Default view"""
-    quick_access = plugin.get_setting('quickAccess', bool)
-    if quick_access:
-        # Jump directly to 'fiveLast'
-        login()
-        return show_programs('fiveLast', '1')
     items = [
         {'label': plugin.get_string(30010), 'path': plugin.url_for('emissions')},
-        {'label': plugin.get_string(30010), 'path': plugin.url_for('grenier')},
-        {'label': plugin.get_string(30012), 'path': plugin.url_for('settings')},
+        {'label': plugin.get_string(30011), 'path': plugin.url_for('grenier')},
+        {'label': plugin.get_string(30012), 'path': plugin.url_for('settings')}
     ]
     return plugin.finish(items)
+
 
 @plugin.route('/emissions/')
 def emissions():
     login()
     items = [
         {'label': plugin.get_string(30010),
-         'path': plugin.url_for('show_programs', label='arretSurImages', page='1'),
+         'path': plugin.url_for('show_programs', label='arretSurImages', page='1', category='emissions'),
          },
         {'label': plugin.get_string(30014),
-         'path': plugin.url_for('show_programs', label='postPop', page='1'),
+         'path': plugin.url_for('show_programs', label='postPpop', page='1', category='emissions'),
          },
         {'label': plugin.get_string(30015),
-         'path': plugin.url_for('show_programs', label='classeTele', page='1'),
+         'path': plugin.url_for('show_programs', label='classetele', page='1', category='emissions'),
          },
         {'label': plugin.get_string(30016),
-         'path': plugin.url_for('show_programs', label='archiveTele', page='1'),
+         'path': plugin.url_for('show_programs', label='archivetele', page='1', category='emissions'),
          }
     ]
     return plugin.finish(items)
@@ -118,37 +117,34 @@ def grenier():
     """Display the available programs categories"""
     login()
     items = [
-        {'label': plugin.get_string(30013),
-         'path': plugin.url_for('show_programs', label='fiveLast', page='1'),
-        },
         {'label': '@rrêt sur images',
-         'path': plugin.url_for('show_programs', label='arretSurImages', page='1'),
+         'path': plugin.url_for('show_programs', label='arretSurImages', page='1', category='grenier'),
          'info': {'Plot':plugin.get_string(30031)},
-        },
+         },
         {'label': 'D@ns le texte',
-         'path': plugin.url_for('show_programs', label='dansLeTexte', page='1'),
+         'path': plugin.url_for('show_programs', label='dansLeTexte', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30033)},
-        },
+         },
         {'label': '14:42',
-         'path': plugin.url_for('show_programs', label='14h42', page='1'),
+         'path': plugin.url_for('show_programs', label='14h42', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30036)},
-        },
+         },
         {'label': "C'est p@s qu'un jeu",
-         'path': plugin.url_for('show_programs', label='CPQJ', page='1'),
+         'path': plugin.url_for('show_programs', label='CPQJ', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30037)},
-        },
+         },
         {'label': '@ux sources',
-         'path': plugin.url_for('show_programs', label='auxSources', page='1'),
+         'path': plugin.url_for('show_programs', label='auxSources', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30034)},
-        },
+         },
         {'label': '@u Prochain Episode',
-         'path': plugin.url_for('show_programs', label='auProchainEpisode', page='1'),
+         'path': plugin.url_for('show_programs', label='auProchainEpisode', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30035)},
-        },
+         },
         {'label': 'Ligne j@une',
-         'path': plugin.url_for('show_programs', label='ligneJaune', page='1'),
+         'path': plugin.url_for('show_programs', label='ligneJaune', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30032)},
-        }
+         }
     ]
     return plugin.finish(items)
 
@@ -159,25 +155,15 @@ def settings():
     plugin.open_settings()
 
 
-@plugin.route('/labels/<label>/<page>/')
-def show_programs(label, page):
+@plugin.route('/labels/<label>/<page>/<category>/')
+def show_programs(label, page, category):
     """Display the list of programs"""
-    sortMethod = SORTMETHOD[plugin.get_setting('sortMethod', int)]
-    programs = scraper.Programs('%sp=%s&orderby=%s' % (URL[label], page, sortMethod))
+    # sortMethod = SORTMETHOD[plugin.get_setting('sortMethod', int)]
+    programs = scraper.Programs(label, category)
     entries = programs.get_programs()
-    if plugin.get_setting('displayParts', bool):
-        # Displayed programs are not playable
-        # We will display all the parts
-        items = [{'label': program['title'],
-                  'path': plugin.url_for('get_program_parts',
-                                        url=program['url'],
-                                        name=program['title'],
-                                        icon=program['thumb']),
-                  'thumbnail': program['thumb'],
-                 } for program in entries]
+    if category == 'grenier':
+        pass
     else:
-        # Displayed programs are playable
-        # We will try to play the main (xvid) video
         items = [{'label': program['title'],
                   'path': plugin.url_for('play_program', url=program['url']),
                   'thumbnail': program['thumb'],
@@ -203,6 +189,7 @@ def show_programs(label, page):
     #                      'path': plugin.url_for('show_programs',
     #                                            label=label,
     #                                            page=previous_page)})
+
     return plugin.finish(items, update_listing=(page != 1))
 
 

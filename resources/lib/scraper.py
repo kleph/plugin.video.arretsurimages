@@ -93,6 +93,7 @@ def login(username=None, password=None):
                    'username': username,
                    'password': password}
         url_login = URLAPI + '/oauth/v2/token'
+        debug('requesting auth')
         response = requests.post(url_login, data=payload)
         if response:
             debug('User login successful')
@@ -119,11 +120,19 @@ class Programs:
     """Class used to get all programs and navigation items
     from an url"""
 
-    def __init__(self, url):
-        # make API call
-        url_emissions = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
+    def __init__(self, label, category):
+        # factor ?
+        if category == 'grenier':
+            url = URLAPI + '/api/public/contents?aggregates[content_type_slug][' + label + \
+                  ']=1&sort=[%22last_version_at%22,%22DESC%22]'
+        elif label == 'arretSurImages':
+            url = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
                         'aggregates][content_format_id][2]=1&aggregates[0][limit]=10'
-        self.json = get_json(url_emissions)
+        else:
+            # maybe some change ?
+            url = URLAPI + '/api/public/contents?aggregates[content_type_slug][' + label + \
+                  ']=1&sort=[%22last_version_at%22,%22DESC%22]'
+        self.json = get_json(url)
 
     def get_programs(self):
         """Return all programs from the current page"""
