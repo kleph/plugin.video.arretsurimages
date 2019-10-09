@@ -99,14 +99,14 @@ def emissions():
         {'label': plugin.get_string(30010),
          'path': plugin.url_for('show_programs', label='arretSurImages', page='1', category='emissions'),
          },
-        {'label': plugin.get_string(30014),
-         'path': plugin.url_for('show_programs', label='postPpop', page='1', category='emissions'),
+        {'label': plugin.get_string(30014), # list empty
+         'path': plugin.url_for('show_programs', label='post-ppop', page='1', category='emissions'),
          },
-        {'label': plugin.get_string(30015),
-         'path': plugin.url_for('show_programs', label='classetele', page='1', category='emissions'),
+        {'label': plugin.get_string(30015), # KO
+         'path': plugin.url_for('show_programs', label='classe-tele', page='1', category='emissions'),
          },
-        {'label': plugin.get_string(30016),
-         'path': plugin.url_for('show_programs', label='archivetele', page='1', category='emissions'),
+        {'label': plugin.get_string(30016), # list empty
+         'path': plugin.url_for('show_programs', label='archive-tele', page='1', category='emissions'),
          }
     ]
     return plugin.finish(items)
@@ -121,28 +121,36 @@ def grenier():
          'path': plugin.url_for('show_programs', label='arretSurImages', page='1', category='grenier'),
          'info': {'Plot':plugin.get_string(30031)},
          },
-        {'label': 'D@ns le texte',
-         'path': plugin.url_for('show_programs', label='dansLeTexte', page='1', category='grenier'),
+        {'label': 'D@ns le texte',# KO
+         'path': plugin.url_for('show_programs', label='dans-le-texte', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30033)},
          },
-        {'label': '14:42',
+        {'label': 'Tenk',  # list OK
+         'path': plugin.url_for('show_programs', label='tenk-arret-sur-images', page='1', category='grenier'),
+         'info': {'Plot': plugin.get_string(30038)},
+         },
+        {'label': 'Sur le terrain',  # KO
+         'path': plugin.url_for('show_programs', label='sur-le-terrain', page='1', category='grenier'),
+         'info': {'Plot': plugin.get_string(30039)},
+         },
+        {'label': '14:42', # KO
          'path': plugin.url_for('show_programs', label='14h42', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30036)},
          },
-        {'label': "C'est p@s qu'un jeu",
-         'path': plugin.url_for('show_programs', label='CPQJ', page='1', category='grenier'),
+        {'label': "C'est p@s qu'un jeu", # list OK
+         'path': plugin.url_for('show_programs', label='cest-pas-quun-jeu', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30037)},
          },
-        {'label': '@ux sources',
-         'path': plugin.url_for('show_programs', label='auxSources', page='1', category='grenier'),
+        {'label': '@ux sources', # list OK
+         'path': plugin.url_for('show_programs', label='aux-sources', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30034)},
          },
-        {'label': '@u Prochain Episode',
-         'path': plugin.url_for('show_programs', label='auProchainEpisode', page='1', category='grenier'),
+        {'label': '@u Prochain Episode', # KO
+         'path': plugin.url_for('show_programs', label='au-prochain-episode', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30035)},
          },
-        {'label': 'Ligne j@une',
-         'path': plugin.url_for('show_programs', label='ligneJaune', page='1', category='grenier'),
+        {'label': 'Ligne j@une', # list OK
+         'path': plugin.url_for('show_programs', label='ligne-jaune', page='1', category='grenier'),
          'info': {'Plot': plugin.get_string(30032)},
          }
     ]
@@ -161,18 +169,15 @@ def show_programs(label, page, category):
     # sortMethod = SORTMETHOD[plugin.get_setting('sortMethod', int)]
     programs = scraper.Programs(label, category)
     entries = programs.get_programs()
-    if category == 'grenier':
-        pass
-    else:
-        items = [{'label': program['title'],
-                  'path': plugin.url_for('play_program', url=program['url']),
-                  'thumbnail': program['thumb'],
-                  'is_playable': True,
-                  'context_menu': [(plugin.get_string(30180),
-                                    'XBMC.RunPlugin(%s)' %
-                                        plugin.url_for('download_program',
-                                                        url=program['url']))],
-                 } for program in entries]
+    items = [{'label': program['title'],
+              'path': plugin.url_for('play_program', url=program['url']),
+              'thumbnail': program['thumb'],
+              'is_playable': True,
+              'context_menu': [(plugin.get_string(30180),
+                                'XBMC.RunPlugin(%s)' %
+                                plugin.url_for('download_program',
+                                               url=program['url']))],
+              } for program in entries]
 
     # # Add navigation items (Previous / Next) if needed
     # nav_items = programs.get_nav_items()

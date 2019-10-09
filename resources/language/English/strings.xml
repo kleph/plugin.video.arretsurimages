@@ -30,6 +30,10 @@
     <string id="30036">Every second Tuesday, at 14:42, this program answers all questions about life, the universe, and... everything digital.</string>
     <!--CPQJ-->
     <string id="30037">Program that discusses topics related to video games, their history, their economy, their ideology. It is linked to CanardPC magazine.</string>
+    <!--Tenk-->
+    <string id="30038">Tenk</string>
+    <!--Sur le terrain-->
+    <string id="30039">On the field</string>
 
     <!--Errors-->
     <string id="30050">Logon Error</string>

@@ -122,12 +122,15 @@ class Programs:
 
     def __init__(self, label, category):
         # factor ?
+        self.label = label
+        self.category = category
+
         if category == 'grenier':
             url = URLAPI + '/api/public/contents?aggregates[content_type_slug][' + label + \
                   ']=1&sort=[%22last_version_at%22,%22DESC%22]'
         elif label == 'arretSurImages':
-            url = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1&aggregates[0][' \
-                        'aggregates][content_format_id][2]=1&aggregates[0][limit]=10'
+            url = URLAPI + '/api/public/contents/by-aggregates?aggregates[0][aggregates][status][published]=1 \
+                            &aggregates[0][aggregates][content_format_id][2]=1&aggregates[0][limit]=10'
         else:
             # maybe some change ?
             url = URLAPI + '/api/public/contents?aggregates[content_type_slug][' + label + \
@@ -136,13 +139,27 @@ class Programs:
 
     def get_programs(self):
         """Return all programs from the current page"""
-        for media in self.json[0]:
+        #TODO: detect content type somewhere
+        # extrapole the presence of an mp4 link ? :)
+        if self.category == 'arretSurImages':
+            content_json = self.json[0]
+        else:
+            # debug(self.json)
+            content_json = self.json
+        for media in content_json:
             media_title = media['title']
             media_link = media['associated_video']['name']
-            media_link = media['associated_video']['name'] + '_DL.mp4'
+            if self.category == 'arretSurImages':
+                media_link = media['associated_video']['name'] + '_DL.mp4'
+            else:
+                debug('reference_url: ' + media['associated_video']['reference_url'])
+                media_link = media['associated_video']['reference_url'].split('/')[-1]
+                debug('media_link: ' + media_link)
+
             # vimeo_id = media['associated_video']['reference_url'] (/ last part)
             media_thumb = ''
             yield {'url': media_link, 'title': media_title, 'thumb': media_thumb}
+
 
     def get_nav_items(self):
         """Return the navigation items from the current page"""
