@@ -173,6 +173,7 @@ def show_programs(label, page, category):
               'path': plugin.url_for('play_program', url=program['url']),
               'thumbnail': program['thumb'],
               'is_playable': True,
+              'info_type': 'video',
               'context_menu': [(plugin.get_string(30180),
                                 'XBMC.RunPlugin(%s)' %
                                 plugin.url_for('download_program',
@@ -203,9 +204,15 @@ def show_programs(label, page, category):
 def get_program(url, mode):
     """Play or download the selected program"""
     debug('get_program: ' + url)
-    video_url = URLPLAY + '/fichiers/' + url
-    debug('playing: ' + video_url)
+    video_url = ''
+    if url.startswith('vimeo'):
+        video_url = 'plugin://plugin.video.vimeo/play/?video_id=' + url.split('/')[-1].replace('.mp4', '')
+    elif url.startswith('dailymotion'):
+        video_url = 'plugin://plugin.video.dailymotion_com/?url=' + url.split('/')[-1].replace('.mp4', '') + '&mode=playVideo'
+    else:
+        video_url = URLPLAY + '/fichiers/' + url
 
+    debug('playing: ' + video_url)
     return play_video(video_url)
 
 

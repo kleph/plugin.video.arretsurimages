@@ -139,7 +139,7 @@ class Programs:
 
     def get_programs(self):
         """Return all programs from the current page"""
-        #TODO: detect content type somewhere
+        # TODO: detect content type somewhere
         # extrapole the presence of an mp4 link ? :)
         if self.category == 'arretSurImages':
             content_json = self.json[0]
@@ -148,18 +148,28 @@ class Programs:
             content_json = self.json
         for media in content_json:
             media_title = media['title']
-            media_link = media['associated_video']['name']
-            if self.category == 'arretSurImages':
-                media_link = media['associated_video']['name'] + '_DL.mp4'
-            else:
-                debug('reference_url: ' + media['associated_video']['reference_url'])
-                media_link = media['associated_video']['reference_url'].split('/')[-1]
-                debug('media_link: ' + media_link)
+            media_link = ''
+            try:
+                media_link = media['associated_video']['name']
+                if self.category == 'arretSurImages':
+                    media_link = media['associated_video']['name'] + '_DL.mp4'
+                if media['associated_video']['provider'] == 'vimeo' or 'dailymotion':
+                    debug('reference_url: ' + media['associated_video']['reference_url'])
+                    #FIXME: very ugly hack that add .mp4 so xbmcswift2 generate the good listitem type
+                    media_link = media['associated_video']['provider'] + '/' + \
+                        media['associated_video']['reference_url'].split('/')[-1] + '.mp4'
+                    debug('media_link: ' + media_link)
+                else:
+                    debug('unknown provider:' + media['associated_video']['provider'])
+                    debug('reference_url: ' + media['associated_video']['reference_url'])
+                    media_link = media['associated_video']['reference_url'].split('/')[-1] + '.mp4'
+                    debug('media_link: ' + media_link)
+            except KeyError:
+                debug('no media_link for ' + media_title)
 
             # vimeo_id = media['associated_video']['reference_url'] (/ last part)
             media_thumb = ''
             yield {'url': media_link, 'title': media_title, 'thumb': media_thumb}
-
 
     def get_nav_items(self):
         """Return the navigation items from the current page"""
@@ -186,7 +196,7 @@ def get_main_video(url):
     soup = get_soup(url)
 
     for link in soup.find_all(href=re.compile("\.mp4$")):
-    # for link in soup.find_all('a', {"class": "action download-action unstyled-button"}):
+        # for link in soup.find_all('a', {"class": "action download-action unstyled-button"}):
         video_url = link.get('href')
         debug("video_url: " + video_url)
     title = video_url.split('/')[-1]
@@ -266,4 +276,3 @@ def get_video_by_id(video_id, streams):
         link = 'None'
     title = result["title"] + '.mp4'
     return {'title': title, 'url': link}
-
