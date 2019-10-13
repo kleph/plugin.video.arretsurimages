@@ -99,14 +99,14 @@ def emissions():
         {'label': plugin.get_string(30010),
          'path': plugin.url_for('show_programs', label='arretSurImages', page='1', category='emissions'),
          },
-        {'label': plugin.get_string(30014), # list empty
-         'path': plugin.url_for('show_programs', label='post-ppop', page='1', category='emissions'),
+        {'label': plugin.get_string(30014), # list OK
+         'path': plugin.url_for('show_programs', label='post-pop', page='1', category='emissions'),
          },
-        {'label': plugin.get_string(30015), # KO
+        {'label': plugin.get_string(30015), # KO (no associated video)
          'path': plugin.url_for('show_programs', label='classe-tele', page='1', category='emissions'),
          },
-        {'label': plugin.get_string(30016), # list empty
-         'path': plugin.url_for('show_programs', label='archive-tele', page='1', category='emissions'),
+        {'label': plugin.get_string(30016), # KO (no associated video)
+         'path': plugin.url_for('show_programs', label='archives-tv-asi', page='1', category='emissions'),
          }
     ]
     return plugin.finish(items)
